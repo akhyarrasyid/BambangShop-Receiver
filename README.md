@@ -77,7 +77,7 @@ You can install Postman via this website: https://www.postman.com/downloads/
     -   [x] Commit: `Implement receive function in Notification controller.`
     -   [x] Commit: `Implement list_messages function in Notification service.`
     -   [x] Commit: `Implement list function in Notification controller.`
-    -   [ ] Write answers of your learning module's "Reflection Subscriber-2" questions in this README.
+    -   [x] Write answers of your learning module's "Reflection Subscriber-2" questions in this README.
 
 ## Your Reflections
 This is the place for you to write reflections:
@@ -94,3 +94,17 @@ Dalam case tutorial ini, kita lebih memilih menggunakan `RwLock<>` untuk menyink
 Seperti yang kita katahu, Rust tidak mengizinkan mutasi langsung pada variabel statis seperti di Java karena alasan thread safety dan keamanan memori. Dalam multi-threading, akses global ke variabel statis berisiko menyebabkan race condition. Rust secara default membuat variabel statis immutable untuk mencegah akses tak terkendali. Jika perlu diubah, kita harus menggunakan mekanisme seperti `RwLock<>` atau `DashMap<>`, yang memastikan data tetap aman saat diakses oleh banyak thread. nah disinilah `lazy_static!` digunakan untuk lazy initialization, sehingga variabel hanya diinisialisasi sekali saat pertama kali digunakan, membuatnya lebih efisien dan aman dibandingkan static mut. Dengan pendekatan ini, Rust menjaga keamanan memori lebih ketat dibanding Java.
 
 #### Reflection Subscriber-2
+
+>Have you explored things outside of the steps in the tutorial, for example: src/lib.rs? If not, explain why you did not do so. If yes, explain things that you have learned from those other parts of code.
+
+Ya. Di beberapa part code lain, saya sempat mengeksplorasi beberapa bagian code di luar langkah-langkah tutorial, terutama pada `src/lib.rs` dan `main.rs`. Dari `lib.rs`, saya belajar bagaimana aplikasi mengelola konfigurasinya menggunakan struct AppConfig, yang memanfaatkan `lazy_static` untuk menciptakan pola mirip singleton dalam pengaturan aplikasi. Saya menemukan bahwa penggunaan sistem konfigurasi Figment dari Rocket sangat menarik, karena memungkinkan penggabungan nilai default dengan variabel lingkungan yang dimuat melalui .env. nah hal ini membuat aplikasi lebih fleksibel tanpa perlu mengubah code secara langsung.
+
+>Since you have completed the tutorial by now and have tried to test your notification system by spawning multiple instances of Receiver, explain how Observer pattern eases you to plug in more subscribers. How about spawning more than one instance of Main app, will it still be easy enough to add to the system?
+
+Setelah menyelesaikan tutorial dan menguji sistem notifikasi dengan beberapa Receiver, menurut saya Observer pattern benar-benar mempermudah penambahan subscriber baru (one-to-many). Saya hanya perlu menjalankan Receiver lain di port yang berbeda (sesuai dengan petunjuk tutorial) dan mendaftarkannya ke jenis produk yang diminati. Aplikasi utama (Main app) tidak perlu mengalami perubahan kode, karena secara otomatis mencatat subscriber baru saat mereka berlangganan dan mengirimkan notifikasi ketika terjadi perubahan yang relevan. Hal ini menunjukkan bagaimana Observer pattern memungkinkan sistem tetap fleksibel dengan hubungan yang tidak terlalu terikat (loosely coupled). 
+
+Kemudian bagaimana dengan spawning lebih dari 1 instance Main app? jawabannya menurut saya menjalankan beberapa instance Main app cukup rumit karena tiap instance memiliki daftar subscriber sendiri di DashMap. Subscriber harus mendaftar ke setiap instance atau perlu mekanisme sinkronisasi antar Main app. Selain itu, jika sebuah produk dibuat di satu instance, instance lain tidak otomatis mengetahuinya, sehingga notifikasi bisa terlewat. Untuk skenario many-to-many, dibutuhkan solusi seperti event sourcing atau message broker bersama.
+
+>Have you tried to make your own Tests, or enhance documentation on your Postman collection? If you have tried those features, tell us whether it is useful for your work (it can be your tutorial work or your Group Project).
+
+Saya belum pernah mencoba membuat test sendiri di Postman, tetapi dari test yang sudah ada di Postman collection, sepertinya fitur ini bekerja layaknya test biasa. Menurut saya, penambahan test sangat bermanfaat untuk memastikan API berfungsi sesuai ekspektasi dan mendeteksi error lebih cepat. Selain itu, dokumentasi di Postman mempermudah tim dalam memahami penggunaan API, berkolaborasi, dan melakukan debugging.
